@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Centros Redes FSA - Musicala 2025</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        h1 {
+            color: #333333;
+            font-size: 30px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        h1::before {
+            content: "📍";
+            font-size: 28px;
+            color: #ff0066;
+        }
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            max-width: 100px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #ff0066;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        tr {
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        td {
+            background-color: white;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        a {
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            justify-content: center;
+        }
+        a::before {
+            content: "📍";
+            color: #ff0066;
+            font-size: 18px;
+        }
+        .search-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+        .search-container label {
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .search-container label::before {
+            content: "🔍";
+            font-size: 18px;
+            color: #007BFF;
+        }
+        .copyright {
+            font-size: 14px;
+            color: #888888;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Logo en la esquina superior izquierda -->
+    <img src="https://static.wixstatic.com/media/85afce_3adb3865c88a492b93a8bf2dc69049c3~mv2.png" alt="Logo Musicala" class="logo">
+
+    <div class="container">
+        <h1>Centros Redes FSA - Musicala 2025</h1>
+        <p>Consulta los centros, rutas y ubicaciones fácilmente.</p>
+
+        <div class="search-container">
+            <label for="search">Buscar: <input type="text" id="search" class="form-control"></label>
+        </div>
+
+        <table id="centrosTable">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Dirección</th>
+                    <th>Barrio</th>
+                    <th>Maps</th>
+                    <th>Rutas</th>
+                    <th>Observación</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <p class="copyright">© 2025 Musicala. Todos los derechos de uso son propiedad de Musicala.</p>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTC3UQYXm89bmi8jLTtZfOj9CA4epNsas3PX9IAGG5l7IDHlNKpBgP3Y3iCIcPrZwJMEsXvB6tQPJ-p/pub?gid=0&single=true&output=csv";
+
+            fetch(sheetURL)
+                .then(response => response.text())
+                .then(csvText => {
+                    let rows = csvText.split("\n").map(row => row.split(","));
+                    let tbody = $("#centrosTable tbody");
+
+                    rows.slice(1).forEach(row => {
+                        if (row.length < 6) return; 
+
+                        let nombre = row[0].trim();
+                        let direccion = row[1].trim();
+                        let barrio = row[2].trim();
+                        let maps = row[3].trim();
+                        let rutas = row[4].trim();
+                        let observacion = row[5].trim();
+
+                        let mapsLink = maps.startsWith("4°") || maps.startsWith("C")
+                            ? `<a href="https://www.google.com/maps?q=${encodeURIComponent(maps)}" target="_blank">Ver en Maps</a>`
+                            : `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(nombre)}" target="_blank">${nombre}</a>`;
+
+                        let rowHTML = `<tr>
+                            <td>${nombre}</td>
+                            <td>${direccion}</td>
+                            <td>${barrio}</td>
+                            <td>${mapsLink}</td>
+                            <td>${rutas}</td>
+                            <td>${observacion}</td>
+                        </tr>`;
+
+                        tbody.append(rowHTML);
+                    });
+
+                    $("#search").on("keyup", function() {
+                        let value = $(this).val().toLowerCase();
+                        $("#centrosTable tbody tr").filter(function() {
+                            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error("Error al cargar los datos:", error);
+                });
+        });
+    </script>
+
+</body>
+</html>
