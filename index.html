@@ -137,6 +137,7 @@
                     <th>Maps</th>
                     <th>Rutas</th>
                     <th>Observación</th>
+                    <th>Foto</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -155,6 +156,14 @@
                     let rows = csvText.split("\n").map(row => row.split(","));
                     let tbody = $("#centrosTable tbody");
 
+                    // Mapa de imágenes por nombre de centro
+                    const imagenesPorCentro = {
+                        "Centro Redes Padre Misericordioso A": "https://static.wixstatic.com/media/85afce_1a0bacb592814c4b8b293b259734060d~mv2.png",
+                        "Centro Redes Padre Misericordioso B": "https://static.wixstatic.com/media/85afce_3f7187b12ea142b1bb34a0621c4f0f4e~mv2.png",
+                        "Centro Redes San Juan de Dios": "https://static.wixstatic.com/media/85afce_1234567890abcdef1234567890abcdef~mv2.jpg",
+                        // Agrega más centros aquí según necesites
+                    };
+
                     rows.slice(1).forEach(row => {
                         if (row.length < 6) return; 
 
@@ -164,10 +173,15 @@
                         let maps = row[3].trim();
                         let rutas = row[4].trim();
                         let observacion = row[5].trim();
+                        let imagenURL = imagenesPorCentro[nombre] || "";
 
                         let mapsLink = maps.startsWith("4°") || maps.startsWith("C")
                             ? `<a href="https://www.google.com/maps?q=${encodeURIComponent(maps)}" target="_blank">Ver en Maps</a>`
                             : `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(nombre)}" target="_blank">${nombre}</a>`;
+
+                        let imagenHTML = imagenURL
+                            ? `<img src="${imagenURL}" alt="Foto centro" style="max-width:80px; border-radius:8px;">`
+                            : "Sin imagen";
 
                         let rowHTML = `<tr>
                             <td>${nombre}</td>
@@ -176,6 +190,7 @@
                             <td>${mapsLink}</td>
                             <td>${rutas}</td>
                             <td>${observacion}</td>
+                            <td>${imagenHTML}</td>
                         </tr>`;
 
                         tbody.append(rowHTML);
